@@ -22,10 +22,17 @@ async function getToken(user, pass, path = 'data.json') {
 	}
 
 	if (!data.cookie) {
-		data.cookie = (await request.post(URL.signIn, {form: {username: user, password: pass}, resolveWithFullResponse: true})).headers['set-cookie']
+		res = await request.post(URL.signIn, {form: {username: user, password: pass}, resolveWithFullResponse: true})
+			.catch((err) => {
+				throw new Error('Failed to sign in', { cause: err });
+			});
+		data.cookie = res.headers['set-cookie'];
 	}
 
 	data.token = await request.get(URL.getToken, {headers: {'Cookie': data.cookie}})
+		.catch((err) => {
+			throw new Error('Failed to get token', { cause: err });
+		})
 	
 	await fs.writeFile(path, JSON.stringify(data));
 
@@ -94,10 +101,6 @@ class SocketWrapper {
 				console.log("reconnect: " + this.sessionId, "Successfully  Reconnected");
 			});
 
-			this.socket.on('reconnect_failed', () => {
-				console.log("Unable to Reconnect", "Unable to reconnect to the server");
-			});
-
 			this.socket.on('reconnect_attempt', () => {
 				console.log("Attempting to reconnect: " + this.sessionId);
 				this.socket.io.opts.query = {
@@ -105,7 +108,18 @@ class SocketWrapper {
 				};
 			});
 
-			this.socket.on("error", console.log)
+			this.socket.on("reconnect_failed", (err) => {
+				reject(err);
+			});
+
+			this.socket.on("error", (err) => {
+				reject(err);
+			});
+
+			this.socket.on("connect_error", (err) => {
+				reject(err);
+			});
+
 			this.socket.on("connect_error", console.log)
 
 			this.socket.on('command', this._processCommand.bind(this));
