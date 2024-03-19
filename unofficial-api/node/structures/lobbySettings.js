@@ -339,7 +339,7 @@ class LobbySettings{
         assertBooleans({openings, endings, inserts})
 
         if(!(openings || endings || inserts)){
-            throw "At least one show type must be enabled"
+            throw "At least one song type must be enabled"
         }
         this.settings.songType.standardValue.openings = openings
         this.settings.songType.standardValue.endings = endings
