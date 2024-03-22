@@ -32,7 +32,6 @@ class LobbySettings{
             const sss = settings.songSelection.standardValue
             const ssa = settings.songSelection.advancedValue
             dummy.setSongSelection(sss)
-            console.log(settings.songSelection)
             if(ssa.watched+ssa.unwatched+ssa.random !== settings.numberOfSongs){
                 throw `song selection count mismatch ${ssa.watched+ssa.unwatched+ssa.random}, ${settings.numberOfSongs}`
             }
@@ -322,7 +321,6 @@ class LobbySettings{
         assertInDictionary(standardValue, CONST_VALUES.SONG_SELECTION, "CONST_VALUES.SONG_SELECTION")
         const ratio = CONST_VALUES.SONG_SELECTION_STANDARD_RATIOS
         const ratios = [ratio.RANDOM, ratio.MIX, ratio.WATCHED][standardValue-1]
-        console.log(ratio, standardValue, ratios.WATCHED, ratios.UNWATCHED, ratios.RANDOM, this.settings.numberOfSongs)
         this._calculateSongDistribution(ratios.WATCHED, ratios.UNWATCHED, ratios.RANDOM, this.settings.numberOfSongs)
     }
 
@@ -356,8 +354,6 @@ class LobbySettings{
                 random++
             }
         }
-        //console.log(numberOfSongs, randomRatio, ratioQuantifier)
-        //console.trace()
         this.settings.songSelection.advancedValue.watched = watched
         this.settings.songSelection.advancedValue.unwatched = unwatched
         this.settings.songSelection.advancedValue.random = random
