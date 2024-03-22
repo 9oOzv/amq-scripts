@@ -145,7 +145,7 @@ class SocketWrapper {
 				resolve(data);
 			}, value)
 
-			setTimeout(() => reject('timeout'), this.timeout);
+			setTimeout(() => reject(new Error('timeout')), this.timeout);
 		})
 	}
 
