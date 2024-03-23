@@ -168,13 +168,22 @@ class SocketWrapper {
 	}
 
 	_sendCommand(data, responseEvent, value) {
+		this.logger.debug(
+			'Sending command',
+			data
+		);
 		let promise = this.once(responseEvent, value); 
 		this.socket.emit("command", data);
 		return promise;
 	}
 
 	_processCommand(data) {
-		if (this.debug) console.log(data);
+		this.logger.debug(
+			'Processing command',
+			{
+				data: data
+			}
+		);
 		(this.listeners[data.command] || []).concat(this.listeners[EVENTS.ALL] || []).forEach(listener => listener.callback(data.data, listener, data));
 		
 	}
