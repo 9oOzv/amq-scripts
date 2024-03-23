@@ -52,9 +52,14 @@ class Listener {
 	}
 }
 
+const default_logger = {
+	info: console.log,
+	err: console.log,
+	debug: console.log
+}
 
 class SocketWrapper {
-	constructor() {
+	constructor(logger = default_logger) {
 		this.listeners = {};
 		this.dependencies = {
 			room: 0,
@@ -75,6 +80,7 @@ class SocketWrapper {
 		this.patreon = new commands.Patreon(this);
 		this.debug = false;
 		this.timeout = 5000;
+		this.logger = logger;
 	}
 
 	connect(token) {
@@ -92,17 +98,18 @@ class SocketWrapper {
 				this.sessionId = sessionId;
 				resolve(this);
 			});		
+			const logger = this.logger;
 
 			this.socket.on("disconnect", () => {
-				console.log("Disconnected from server", "Attempting to reconnect.");
+				logger.info("Disconnected from server", "Attempting to reconnect");
 			});
 
 			this.socket.on('reconnect', () => {
-				console.log("reconnect: " + this.sessionId, "Successfully  Reconnected");
+				logger.info("Reconnected", { sessionId: this.sessionId });
 			});
 
 			this.socket.on('reconnect_attempt', () => {
-				console.log("Attempting to reconnect: " + this.sessionId);
+				logger.info("Attempting to reconnect ", { sessionId: this.sessionId });
 				this.socket.io.opts.query = {
 					session: this.sessionId
 				};
@@ -120,7 +127,7 @@ class SocketWrapper {
 				reject(err);
 			});
 
-			this.socket.on("connect_error", console.log)
+			this.socket.on("connect_error", logger.error);
 
 			this.socket.on('command', this._processCommand.bind(this));
 		})
